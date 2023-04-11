@@ -10,12 +10,14 @@ import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
 import { useCopyCode } from './hooks/useCopyCode'
 import { useUsingContext } from './hooks/useUsingContext'
+import { useTTSContext } from './hooks/useTTSContext'
 import HeaderComponent from './components/Header/index.vue'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useChatStore, usePromptStore } from '@/store'
 import { fetchChatAPIProcess } from '@/api'
 import { t } from '@/locales'
+import TTSSpeaker from '@/tts/TTSSpeaker'
 
 let controller = new AbortController()
 
@@ -33,6 +35,7 @@ const { isMobile } = useBasicLayout()
 const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
 const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 const { usingContext, toggleUsingContext } = useUsingContext()
+const { usingTTSContext, toggleUsingTTSContext } = useTTSContext()
 
 const { uuid } = route.params as { uuid: string }
 
@@ -54,6 +57,57 @@ dataSources.value.forEach((item, index) => {
   if (item.loading)
     updateChatSome(+uuid, index, { loading: false })
 })
+
+// TTS的内容合成
+const ttsTextContent: Map<number, TTSTextContentModel> = new Map()
+const _speaker: any = TTSSpeaker()
+_speaker.connectWs()
+setInterval(() => {
+  if (_speaker.getArraybufferList().length > 0)
+    _speaker.speak()
+}, 2000)
+function segmentText(text: string) {
+  const pattern = /[\n\s+,，。.；;]/g
+  const segments = text.split(pattern)
+  return segments.filter(segment => segment !== '')
+}
+
+function postTTSTextFromLastText(text: string) {
+  const texts = segmentText(text)
+  if (texts.length > 0)
+    postTTSText(texts[texts.length - 1])
+}
+
+function postTTSText(text: string) {
+  if (!usingTTSContext.value)
+    return
+  _speaker.sendMessage(text)
+}
+
+function handleTTS(data: any) {
+  if (data == null || data.text == null)
+    return
+
+  let item = ttsTextContent.get(data.id)
+  if (!item) {
+    item = {
+      textId: data.id,
+      textIndex: 0,
+    }
+    ttsTextContent.set(data.id, item)
+  }
+
+  const texts: string[] = segmentText(data.text)
+  if (texts.length === 0)
+    return
+
+  // 缓存取出文本
+  while (item.textIndex < texts.length - 1) {
+    const text = texts[item.textIndex]
+    postTTSText(text)
+    item.textIndex = item.textIndex + 1
+  }
+}
 
 function handleSubmit() {
   onConversation()
@@ -123,6 +177,7 @@ async function onConversation() {
             chunk = responseText.substring(lastIndex)
           try {
             const data = JSON.parse(chunk)
+            handleTTS(data)
             updateChat(
               +uuid,
               dataSources.value.length - 1,
@@ -151,6 +206,9 @@ async function onConversation() {
           }
         },
       })
+
+      const chatItem: any = getChatByUuidAndIndex(+uuid, dataSources.value.length - 1)
+      postTTSTextFromLastText(chatItem.text)
       updateChatSome(+uuid, dataSources.value.length - 1, { loading: false })
     }
 
@@ -211,7 +269,6 @@ async function onRegenerate(index: number) {
     return
 
   controller = new AbortController()
-
   const { requestOptions } = dataSources.value[index]
 
   let message = requestOptions?.prompt ?? ''
@@ -254,6 +311,7 @@ async function onRegenerate(index: number) {
             chunk = responseText.substring(lastIndex)
           try {
             const data = JSON.parse(chunk)
+            handleTTS(data)
             updateChat(
               +uuid,
               index,
@@ -280,6 +338,9 @@ async function onRegenerate(index: number) {
           }
         },
       })
+
+      const chatItem: any = getChatByUuidAndIndex(+uuid, index)
+      postTTSTextFromLastText(chatItem.text)
       updateChatSome(+uuid, index, { loading: false })
     }
     await fetchChatAPIOnce()
@@ -416,7 +477,9 @@ function handleStop() {
 // 理想状态下其实应该是key作为索引项,但官方的renderOption会出现问题，所以就需要value反renderLabel实现
 const searchOptions = computed(() => {
   if (prompt.value.startsWith('/')) {
-    return promptTemplate.value.filter((item: { key: string }) => item.key.toLowerCase().includes(prompt.value.substring(1).toLowerCase())).map((obj: { value: any }) => {
+    return promptTemplate.value.filter((item: {
+      key: string
+    }) => item.key.toLowerCase().includes(prompt.value.substring(1).toLowerCase())).map((obj: { value: any }) => {
       return {
         label: obj.value,
         value: obj.value,
@@ -529,6 +592,11 @@ onUnmounted(() => {
           <HoverButton v-if="!isMobile" @click="toggleUsingContext">
             <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
               <SvgIcon icon="ri:chat-history-line" />
+            </span>
+          </HoverButton>
+          <HoverButton @click="toggleUsingTTSContext">
+            <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingTTSContext, 'text-[#a8071a]': !usingTTSContext }">
+              <SvgIcon icon="material-symbols:speaker-phone" :rotate="1" />
             </span>
           </HoverButton>
           <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">

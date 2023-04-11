@@ -43,6 +43,8 @@ export default {
     usingContext: 'Context Mode',
     turnOnContext: 'In the current mode, sending messages will carry previous chat records.',
     turnOffContext: 'In the current mode, sending messages will not carry previous chat records.',
+    turnOnTTSContext: '当前模式下, AI会自动讲话',
+    turnOffTTSContext: '当前模式下, AI不会自动讲话',
     deleteMessage: 'Delete Message',
     deleteMessageConfirm: 'Are you sure to delete this message?',
     deleteHistoryConfirm: 'Are you sure to clear this history?',

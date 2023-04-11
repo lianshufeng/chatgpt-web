@@ -27,7 +27,10 @@ export const useChatStore = defineStore('chat-store', {
       this.usingContext = context
       this.recordState()
     },
-
+    setUsingTTSContext(context: boolean) {
+      this.usingTTSContext = context
+      this.recordState()
+    },
     addHistory(history: Chat.History, chatData: Chat.Chat[] = []) {
       this.history.unshift(history)
       this.chat.unshift({ uuid: history.uuid, data: chatData })

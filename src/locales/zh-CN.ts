@@ -43,6 +43,8 @@ export default {
     usingContext: '上下文模式',
     turnOnContext: '当前模式下, 发送消息会携带之前的聊天记录',
     turnOffContext: '当前模式下, 发送消息不会携带之前的聊天记录',
+    turnOnTTSContext: '当前模式下, AI会自动讲话',
+    turnOffTTSContext: '当前模式下, AI不会自动讲话',
     deleteMessage: '删除消息',
     deleteMessageConfirm: '是否删除此消息?',
     deleteHistoryConfirm: '确定删除此记录?',

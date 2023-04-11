@@ -43,6 +43,8 @@ export default {
     usingContext: '上下文模式',
     turnOnContext: '啟用上下文模式，在此模式下，發送訊息會包含之前的聊天記錄。',
     turnOffContext: '關閉上下文模式，在此模式下，發送訊息不會包含之前的聊天記錄。',
+    turnOnTTSContext: '当前模式下, AI会自动讲话',
+    turnOffTTSContext: '当前模式下, AI不会自动讲话',
     deleteMessage: '刪除訊息',
     deleteMessageConfirm: '是否刪除此訊息?',
     deleteHistoryConfirm: '確定刪除此紀錄?',
