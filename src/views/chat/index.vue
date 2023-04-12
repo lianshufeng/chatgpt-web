@@ -66,6 +66,7 @@ setInterval(() => {
   if (_speaker.getArraybufferList().length > 0)
     _speaker.speak()
 }, 2000)
+
 function segmentText(text: string) {
   const pattern = /[\n\s+,，。.；;]/g
   const segments = text.split(pattern)
@@ -81,7 +82,12 @@ function postTTSTextFromLastText(text: string) {
 function postTTSText(text: string) {
   if (!usingTTSContext.value)
     return
-  _speaker.sendMessage(text)
+  try {
+    _speaker.sendMessage(text)
+  }
+  catch (e) {
+
+  }
 }
 
 function handleTTS(data: any) {
