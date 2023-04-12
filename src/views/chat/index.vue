@@ -62,10 +62,6 @@ dataSources.value.forEach((item, index) => {
 const ttsTextContent: Map<number, TTSTextContentModel> = new Map()
 const _speaker: any = TTSSpeaker()
 _speaker.connectWs()
-setInterval(() => {
-  if (_speaker.getArraybufferList().length > 0)
-    _speaker.speak()
-}, 2000)
 
 function segmentText(text: string) {
   const pattern = /[\n\s+,，。.；;]/g
