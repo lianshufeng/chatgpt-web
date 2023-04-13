@@ -52,6 +52,9 @@ const promptStore = usePromptStore()
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
 
+// 尝试自动刷新次数
+let tryRegenerateCount = 0
+
 // 未知原因刷新页面，loading 状态不会重置，手动重置
 dataSources.value.forEach((item, index) => {
   if (item.loading)
@@ -69,10 +72,26 @@ function segmentText(text: string) {
   return segments.filter(segment => segment !== '')
 }
 
-function postTTSTextFromLastText(text: string) {
+function tryPostMessage(error: any, index: number) {
+  const sleepTime = [2, 3, 5, 7, 11]
+  if (tryRegenerateCount > sleepTime.length) {
+    tryRegenerateCount = 0
+    return
+  }
+  tryRegenerateCount++
+  if (error && error.status === 'Fail') {
+    setTimeout(() => {
+      onRegenerate(index)
+    }, sleepTime[tryRegenerateCount] * 1000)
+  }
+}
+
+function postFullText(text: string) {
   const texts = segmentText(text)
   if (texts.length > 0)
     postTTSText(texts[texts.length - 1])
+
+  tryRegenerateCount = 0
 }
 
 function postTTSText(text: string) {
@@ -210,7 +229,7 @@ async function onConversation() {
       })
 
       const chatItem: any = getChatByUuidAndIndex(+uuid, dataSources.value.length - 1)
-      postTTSTextFromLastText(chatItem.text)
+      postFullText(chatItem.text)
       updateChatSome(+uuid, dataSources.value.length - 1, { loading: false })
     }
 
@@ -260,6 +279,7 @@ async function onConversation() {
       },
     )
     scrollToBottomIfAtBottom()
+    tryPostMessage(error, dataSources.value.length - 1)
   }
   finally {
     loading.value = false
@@ -342,7 +362,7 @@ async function onRegenerate(index: number) {
       })
 
       const chatItem: any = getChatByUuidAndIndex(+uuid, index)
-      postTTSTextFromLastText(chatItem.text)
+      postFullText(chatItem.text)
       updateChatSome(+uuid, index, { loading: false })
     }
     await fetchChatAPIOnce()
@@ -374,6 +394,7 @@ async function onRegenerate(index: number) {
         requestOptions: { prompt: message, options: { ...options } },
       },
     )
+    tryPostMessage(error, index)
   }
   finally {
     loading.value = false
