@@ -63,8 +63,7 @@ dataSources.value.forEach((item, index) => {
 
 // TTS的内容合成
 const ttsTextContent: Map<number, TTSTextContentModel> = new Map()
-const _speaker: any = TTSSpeaker()
-_speaker.connectWs()
+TTSSpeaker.init()
 
 function segmentText(text: string) {
   const pattern = /[\n\s+,，。.；;]/g
@@ -97,12 +96,7 @@ function postFullText(text: string) {
 function postTTSText(text: string) {
   if (!usingTTSContext.value)
     return
-  try {
-    _speaker.sendMessage(text)
-  }
-  catch (e) {
-
-  }
+  TTSSpeaker.sendMessage(text)
 }
 
 function handleTTS(data: any) {
