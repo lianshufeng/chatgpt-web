@@ -128,6 +128,92 @@ function handleSubmit() {
   onConversation()
 }
 
+// 画图
+async function autoDraw(message: string) {
+  controller = new AbortController()
+
+  addChat(
+    +uuid,
+    {
+      dateTime: new Date().toLocaleString(),
+      text: message,
+      inversion: true,
+      error: false,
+      loading: false,
+      conversationOptions: null,
+      requestOptions: { prompt: message, options: null },
+    },
+  )
+  scrollToBottom()
+
+  loading.value = true
+  prompt.value = ''
+
+  let options: Chat.ConversationRequest = {}
+  const lastContext = conversationList.value[conversationList.value.length - 1]?.conversationOptions
+
+  if (lastContext && usingContext.value)
+    options = { ...lastContext }
+
+  addChat(
+    +uuid,
+    {
+      dateTime: new Date().toLocaleString(),
+      text: '',
+      loading: false,
+      inversion: false,
+      error: false,
+      conversationOptions: null,
+      requestOptions: { prompt: message, options: { ...options } },
+    },
+  )
+  scrollToBottom()
+
+  try {
+    const fetchChatAPIOnce = async () => {
+      const response = await fetch(`https://render.jpy.wang/autoDraw?prompt=${message.substring(4)}`)
+      const blob = await response.blob()
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(blob)
+        reader.onloadend = () => resolve(reader.result)
+        reader.onerror = reject
+      })
+
+      const imageTag = `<img src="${base64}" />`
+
+      updateChat(
+        +uuid,
+        dataSources.value.length - 1,
+        {
+          dateTime: new Date().toLocaleString(),
+          text: imageTag,
+          inversion: false,
+          error: false,
+          loading: false,
+          requestOptions: { prompt: message, options: { ...options } },
+        },
+      )
+    }
+
+    await fetchChatAPIOnce()
+  }
+  catch (e) {
+    console.error(e)
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+function hookMessage(message: string) {
+  if (message.startsWith('/画图 ')) {
+    autoDraw(message)
+    return true
+  }
+  return false
+}
+
 async function onConversation() {
   let message = prompt.value
 
@@ -135,6 +221,9 @@ async function onConversation() {
     return
 
   if (!message || message.trim() === '')
+    return
+
+  if (hookMessage(message))
     return
 
   controller = new AbortController()
@@ -288,6 +377,9 @@ async function onRegenerate(index: number) {
   const { requestOptions } = dataSources.value[index]
 
   let message = requestOptions?.prompt ?? ''
+
+  if (hookMessage(message))
+    return
 
   let options: Chat.ConversationRequest = {}
 
