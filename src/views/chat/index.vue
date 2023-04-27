@@ -177,7 +177,7 @@ async function autoDraw(message: string) {
         reader.onerror = reject
       })
 
-      const imageTag = `<img src="${base64}" />`
+      const imageTag = `![](${base64})`
 
       updateChat(
         +uuid,
