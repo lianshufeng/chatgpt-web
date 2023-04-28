@@ -9,7 +9,7 @@ function getRandomMember(arr: any) {
 
 const DefaultPrompts = [{
   key: '生成图片，如: /画图 一只可爱的小狗',
-  value: `/画图 ${getRandomMember(['一只可爱的小狗', '一个美少女', '精灵在树林里', '迷路的小羊羔', '在屋檐下喝着悲伤的咖啡'])}`,
+  value: `/画图 ${getRandomMember(['/画图 一只可爱的小狗,高清,8k,细节,怜爱,质感', '一个美少女', '/画图 精灵在树林里,写实,脸部还原,高清,细节,8k,紫色头发,金属盔甲,装备豪华,年轻,开心', '在屋檐下喝着悲伤的咖啡'])}`,
 }]
 
 export type PromptList = []
