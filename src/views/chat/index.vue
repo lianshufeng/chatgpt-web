@@ -191,6 +191,8 @@ async function autoDraw(message: string) {
           requestOptions: { prompt: message, options: { ...options } },
         },
       )
+
+      scrollToBottom()
     }
 
     await fetchChatAPIOnce()
@@ -203,7 +205,15 @@ async function autoDraw(message: string) {
   }
 }
 
+const lastMessages: any = []
+let currentMessageIndex = 0
+
 function hookMessage(message: string) {
+  // 插入历史消息
+  lastMessages.push(message)
+  while (lastMessages.length > 10)
+    lastMessages.shift()
+  currentMessageIndex = lastMessages.length - 1
   if (message.startsWith('/画图 ')) {
     autoDraw(message)
     return true
@@ -556,6 +566,24 @@ function handleClear() {
   })
 }
 
+function handleDownEvent(event: KeyboardEvent) {
+  event.preventDefault()
+  if (lastMessages.length === 0)
+    return
+  if (currentMessageIndex >= lastMessages.length)
+    currentMessageIndex = 0
+  prompt.value = lastMessages[currentMessageIndex++]
+}
+
+function handleUpEvent(event: KeyboardEvent) {
+  event.preventDefault()
+  if (lastMessages.length === 0)
+    return
+  prompt.value = lastMessages[currentMessageIndex--]
+  if (currentMessageIndex < 0)
+    currentMessageIndex = lastMessages.length - 1
+}
+
 function handleEnter(event: KeyboardEvent) {
   if (!isMobile.value) {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -717,6 +745,8 @@ onUnmounted(() => {
                 @focus="handleFocus"
                 @blur="handleBlur"
                 @keypress="handleEnter"
+                @keyup.up="handleUpEvent"
+                @keydown.down="handleDownEvent"
               />
             </template>
           </NAutoComplete>
