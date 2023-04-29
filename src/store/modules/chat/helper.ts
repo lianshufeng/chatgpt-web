@@ -1,4 +1,4 @@
-import { ss } from '@/utils/storage'
+import { ss } from '@/utils/storage/IndexedDBStore'
 
 const LOCAL_NAME = 'chatStorage'
 
@@ -13,11 +13,29 @@ export function defaultState(): Chat.ChatState {
   }
 }
 
+// 缓存，解决异步线程同步的问题
+let localStateCache = {}
+let localStateLoadTime: any = null
+
+const updateCache = () => {
+  ss.get(LOCAL_NAME).then((it) => {
+    localStateLoadTime = new Date().getTime()
+    localStateCache = it
+  })
+}
+
+updateCache()
+
+export function getLoadTime(): Number {
+  return localStateLoadTime
+}
+
 export function getLocalState(): Chat.ChatState {
-  const localState = ss.get(LOCAL_NAME)
-  return { ...defaultState(), ...localState }
+  return { ...defaultState(), ...localStateCache }
 }
 
 export function setLocalState(state: Chat.ChatState) {
-  ss.set(LOCAL_NAME, state)
+  Promise.all([
+    ss.set(LOCAL_NAME, state),
+  ])
 }

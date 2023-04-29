@@ -82,6 +82,24 @@ router.post('/verify', async (req, res) => {
   }
 })
 
+router.get('/sleep', async (req, res) => {
+  const time = Number(req.query.time)
+  await new Promise((resolve) => {
+    setTimeout(resolve, time)
+  })
+
+  res.setHeader('Content-type', 'application/octet-stream')
+  try {
+    res.write(JSON.stringify({ time: new Date().getTime() }))
+  }
+  catch (error) {
+    res.write(JSON.stringify(error))
+  }
+  finally {
+    res.end()
+  }
+})
+
 app.use('', router)
 app.use('/api', router)
 app.set('trust proxy', 1)
