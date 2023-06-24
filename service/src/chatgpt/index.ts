@@ -46,6 +46,10 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
       debug: !disableDebug,
     }
 
+    // 修改默认的tokens
+    options.maxModelTokens = process.env.MaxModelTokens ? parseInt(process.env.MaxModelTokens) : 8192
+    options.maxResponseTokens = process.env.MaxResponseTokens ? parseInt(process.env.MaxResponseTokens) : 2048
+
     // increase max token limit if use gpt-4
     if (model.toLowerCase().includes('gpt-4')) {
       // if use 32k model
