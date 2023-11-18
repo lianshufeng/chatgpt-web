@@ -529,7 +529,7 @@ function buildFirstRevTimeOutHandle(uuid: string, index: number) {
     tryPostMessage({
       status: 'Fail',
     }, index)
-  }, 3000)
+  }, 5000)
   ret.handle = _handle
   return ret
 }
