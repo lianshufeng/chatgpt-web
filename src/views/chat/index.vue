@@ -206,14 +206,14 @@ async function autoDraw(message: string) {
 }
 
 const lastMessages: any = []
-let currentMessageIndex = 0
+// let currentMessageIndex = 0
 
 function hookMessage(message: string) {
   // 插入历史消息
   lastMessages.push(message)
   while (lastMessages.length > 10)
     lastMessages.shift()
-  currentMessageIndex = lastMessages.length - 1
+  // currentMessageIndex = lastMessages.length - 1
   if (message.startsWith('/画图 ')) {
     autoDraw(message)
     return true
