@@ -274,11 +274,21 @@ async function onConversation() {
   try {
     let lastText = ''
     const fetchChatAPIOnce = async () => {
+      const timeOutHandle: any = buildFirstRevTimeOutHandle(uuid, dataSources.value.length - 1)
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
+          if (timeOutHandle.cancel) {
+            controller.abort()
+            return
+          }
+          if (timeOutHandle.handle) {
+            clearTimeout(timeOutHandle.handle)
+            timeOutHandle.handle = null
+          }
+
           const xhr = event.target
           const { responseText } = xhr
           // Always process the final line
@@ -412,11 +422,21 @@ async function onRegenerate(index: number) {
   try {
     let lastText = ''
     const fetchChatAPIOnce = async () => {
+      const timeOutHandle: any = buildFirstRevTimeOutHandle(uuid, index)
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
+          if (timeOutHandle.cancel) {
+            controller.abort()
+            return
+          }
+          if (timeOutHandle.handle) {
+            clearTimeout(timeOutHandle.handle)
+            timeOutHandle.handle = null
+          }
+
           const xhr = event.target
           const { responseText } = xhr
           // Always process the final line
@@ -494,6 +514,26 @@ async function onRegenerate(index: number) {
   }
 }
 
+// 首次超时
+function buildFirstRevTimeOutHandle(uuid: string, index: number) {
+  const ret: any = {
+    handle: null,
+    cancel: false,
+  }
+
+  const _handle = setTimeout(() => {
+    // eslint-disable-next-line no-console
+    console.log('超时,自动重连...')
+    ret.cancel = true
+    loading.value = false
+    tryPostMessage({
+      status: 'Fail',
+    }, index)
+  }, 3000)
+  ret.handle = _handle
+  return ret
+}
+
 function handleExport() {
   if (loading.value)
     return
@@ -567,21 +607,21 @@ function handleClear() {
 }
 
 function handleDownEvent(event: KeyboardEvent) {
-  event.preventDefault()
-  if (lastMessages.length === 0)
-    return
-  if (currentMessageIndex >= lastMessages.length)
-    currentMessageIndex = 0
-  prompt.value = lastMessages[currentMessageIndex++]
+  // event.preventDefault()
+  // if (lastMessages.length === 0)
+  //   return
+  // if (currentMessageIndex >= lastMessages.length)
+  //   currentMessageIndex = 0
+  // prompt.value = lastMessages[currentMessageIndex++]
 }
 
 function handleUpEvent(event: KeyboardEvent) {
-  event.preventDefault()
-  if (lastMessages.length === 0)
-    return
-  prompt.value = lastMessages[currentMessageIndex--]
-  if (currentMessageIndex < 0)
-    currentMessageIndex = lastMessages.length - 1
+  // event.preventDefault()
+  // if (lastMessages.length === 0)
+  //   return
+  // prompt.value = lastMessages[currentMessageIndex--]
+  // if (currentMessageIndex < 0)
+  //   currentMessageIndex = lastMessages.length - 1
 }
 
 function handleEnter(event: KeyboardEvent) {
