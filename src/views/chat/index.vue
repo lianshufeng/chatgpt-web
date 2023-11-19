@@ -274,16 +274,12 @@ async function onConversation() {
   try {
     let lastText = ''
     const fetchChatAPIOnce = async () => {
-      const timeOutHandle: any = buildFirstRevTimeOutHandle(uuid, dataSources.value.length - 1)
+      const timeOutHandle: any = buildFirstRevTimeOutHandle(controller, uuid, dataSources.value.length - 1)
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
-          if (timeOutHandle.cancel) {
-            controller.abort()
-            return
-          }
           if (timeOutHandle.handle) {
             clearTimeout(timeOutHandle.handle)
             timeOutHandle.handle = null
@@ -422,16 +418,12 @@ async function onRegenerate(index: number) {
   try {
     let lastText = ''
     const fetchChatAPIOnce = async () => {
-      const timeOutHandle: any = buildFirstRevTimeOutHandle(uuid, index)
+      const timeOutHandle: any = buildFirstRevTimeOutHandle(controller, uuid, index)
       await fetchChatAPIProcess<Chat.ConversationResponse>({
         prompt: message,
         options,
         signal: controller.signal,
         onDownloadProgress: ({ event }) => {
-          if (timeOutHandle.cancel) {
-            controller.abort()
-            return
-          }
           if (timeOutHandle.handle) {
             clearTimeout(timeOutHandle.handle)
             timeOutHandle.handle = null
@@ -515,7 +507,7 @@ async function onRegenerate(index: number) {
 }
 
 // 首次超时
-function buildFirstRevTimeOutHandle(uuid: string, index: number) {
+function buildFirstRevTimeOutHandle(controller: any, uuid: string, index: number) {
   const ret: any = {
     handle: null,
     cancel: false,
@@ -524,6 +516,7 @@ function buildFirstRevTimeOutHandle(uuid: string, index: number) {
   const _handle = setTimeout(() => {
     // eslint-disable-next-line no-console
     console.log('超时,自动重连...')
+    controller.abort()
     ret.cancel = true
     loading.value = false
     tryPostMessage({
