@@ -522,7 +522,7 @@ function buildFirstRevTimeOutHandle(controller: any, uuid: string, index: number
     tryPostMessage({
       status: 'Fail',
     }, index)
-  }, 5000)
+  }, 8000)
   ret.handle = _handle
   return ret
 }
