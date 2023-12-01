@@ -512,7 +512,6 @@ function buildFirstRevTimeOutHandle(controller: any, uuid: string, index: number
     handle: null,
     cancel: false,
   }
-
   const _handle = setTimeout(() => {
     // eslint-disable-next-line no-console
     console.log('超时,自动重连...')
@@ -522,7 +521,7 @@ function buildFirstRevTimeOutHandle(controller: any, uuid: string, index: number
     tryPostMessage({
       status: 'Fail',
     }, index)
-  }, 8000)
+  }, 8000 * ((tryRegenerateCount + 1) * 0.5 + 1))
   ret.handle = _handle
   return ret
 }
