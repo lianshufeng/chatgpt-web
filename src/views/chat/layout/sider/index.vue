@@ -45,9 +45,9 @@ const mobileSafeArea = computed(() => {
   return {}
 })
 
-function openAutoGPT() {
-  window.open('https://autogpt.jpy.wang', '_blank')
-}
+// function openAutoGPT() {
+//   window.open('https://autogpt.jpy.wang', '_blank')
+// }
 
 watch(
   isMobile,
