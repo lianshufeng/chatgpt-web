@@ -23,7 +23,7 @@ const userLoginMethod = () => {
             <span>本站将于2023年12月27日起，将停止对外的聊天业务。</span>
           </p>
           <p>
-            <span>QQ群1：675745755</span>
+            <span>QQ群1：675745755 (满)</span>
           </p>
           <p>
             <span>QQ群2：817424284</span>
