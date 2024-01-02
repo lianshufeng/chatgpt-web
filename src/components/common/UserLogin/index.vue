@@ -9,6 +9,11 @@ const userLoginWindowTips = ref('重要通知')
 const userLoginMethod = () => {
   showUserLogin.value = false
 }
+
+const openNewPage = () => {
+  showUserLogin.value = false
+  window.open('//www.chatman.app')
+}
 </script>
 
 <template>
@@ -20,7 +25,10 @@ const userLoginMethod = () => {
             <span>感谢大家一直以来对我们网站的支持和厚爱。基于国家网络安全相关规定的响应，我们决定对本站进行暂停服务。</span>
           </p>
           <p>
-            <span>本站将于2023年12月27日起，将停止对外的聊天业务。</span>
+            <span>本站将于2023年12月27日起，将停止对外的聊天业务。 </span>
+          </p>
+          <p>
+            <span>请访问其他站: https://www.chatman.app</span>
           </p>
           <p>
             <span>QQ群1：675745755 (满)</span>
@@ -43,6 +51,10 @@ const userLoginMethod = () => {
         <span class="flex-shrink-0 w-[100px]" />
         <NButton size="small" :on-click="userLoginMethod">
           我知道了
+        </NButton>
+
+        <NButton size="small" :on-click="openNewPage">
+          访问其他站
         </NButton>
       </div>
     </div>
