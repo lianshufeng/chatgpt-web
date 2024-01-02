@@ -6,10 +6,6 @@ const showUserLogin = ref(true)
 
 const userLoginWindowTips = ref('重要通知')
 
-const userLoginMethod = () => {
-  showUserLogin.value = false
-}
-
 const openNewPage = () => {
   showUserLogin.value = false
   window.open('//www.chatman.app')
@@ -49,10 +45,6 @@ const openNewPage = () => {
       </div>
       <div class="flex items-center space-x-4">
         <span class="flex-shrink-0 w-[100px]" />
-        <NButton size="small" :on-click="userLoginMethod">
-          我知道了
-        </NButton>
-
         <NButton size="small" :on-click="openNewPage">
           访问其他站
         </NButton>
