@@ -75,7 +75,7 @@ router.post('/chat-process', [auth, limiter], async (req, res) => {
   if (parseInt(politicsInfo.Score) > 80) {
     console.log('敏感内容: ', politicsInfo)
     const ret = {
-      message: `敏感内容: 【${politicsInfo.HitInfos[0].Keyword}】`,
+      message: `敏感内容: 【${JSON.stringify(politicsInfo.HitInfos)}】`,
       status: 'Done',
     }
     res.write(JSON.stringify(ret))
