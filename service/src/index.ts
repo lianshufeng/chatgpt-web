@@ -69,19 +69,19 @@ app.all('*', (_, res, next) => {
 router.post('/chat-process', [auth, limiter], async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
 
-  console.log('request-body : ', req.body)
-  const body: any = await postTextContentAuditing(req.body.prompt)
-  const politicsInfo = body.JobsDetail.Section.PoliticsInfo
-  if (parseInt(politicsInfo.Score) > 80) {
-    console.log('敏感内容: ', politicsInfo)
-    const ret = {
-      message: `敏感内容: 【${JSON.stringify(politicsInfo.HitInfos)}】`,
-      status: 'Done',
-    }
-    res.write(JSON.stringify(ret))
-    res.end()
-    return
-  }
+  // console.log('request-body : ', req.body)
+  // const body: any = await postTextContentAuditing(req.body.prompt)
+  // const politicsInfo = body.JobsDetail.Section.PoliticsInfo
+  // if (parseInt(politicsInfo.Score) > 80) {
+  //   console.log('敏感内容: ', politicsInfo)
+  //   const ret = {
+  //     message: `敏感内容: 【${JSON.stringify(politicsInfo.HitInfos)}】`,
+  //     status: 'Done',
+  //   }
+  //   res.write(JSON.stringify(ret))
+  //   res.end()
+  //   return
+  // }
 
   try {
     const { prompt, options = {}, systemMessage, temperature, top_p } = req.body as RequestProps
