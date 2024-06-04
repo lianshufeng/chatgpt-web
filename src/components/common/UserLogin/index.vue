@@ -8,7 +8,7 @@ const userLoginWindowTips = ref('重要通知')
 
 const openNewPage = () => {
   showUserLogin.value = false
-  window.open('//www.chatman.app')
+  window.open('//www.chatsbot.org')
 }
 </script>
 
@@ -24,7 +24,7 @@ const openNewPage = () => {
             <span>本站将于2023年12月27日起，将停止对外的聊天业务。 </span>
           </p>
           <p>
-            <span>请访问其他站: https://www.chatman.app</span>
+            <span>请访问其他站: https://www.chatsbot.org/</span>
           </p>
           <p>
             <span>QQ群1：675745755 (满)</span>
